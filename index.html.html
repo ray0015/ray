@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal · Number Forge · Saved</title>
+    <style>
+        /* ----- RESET & BASE ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'IBM Plex Mono', 'Share Tech Mono', monospace;
+            background: #0a0e14;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(0deg, 
+                    rgba(0, 255, 200, 0.012) 0px, 
+                    rgba(0, 255, 200, 0.012) 2px,
+                    transparent 2px,
+                    transparent 6px
+                ),
+                radial-gradient(ellipse at 20% 50%, rgba(0, 255, 200, 0.015) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(0, 255, 200, 0.015) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: "RAY";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-10deg);
+            font-size: 16vw;
+            font-weight: 700;
+            color: rgba(0, 255, 200, 0.025);
+            letter-spacing: 0.15em;
+            font-family: 'Share Tech Mono', monospace;
+            pointer-events: none;
+            z-index: 0;
+            user-select: none;
+            white-space: nowrap;
+            animation: pulseWatermark 10s ease-in-out infinite;
+        }
+
+        @keyframes pulseWatermark {
+            0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) rotate(-10deg) scale(1); }
+            50% { opacity: 1; transform: translate(-50%, -50%) rotate(-10deg) scale(1.03); }
+        }
+
+        /* ----- CARD PRINCIPAL ----- */
+        .card {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            width: 100%;
+            background: rgba(10, 14, 20, 0.92);
+            backdrop-filter: blur(8px);
+            border-radius: 16px;
+            padding: 1.8rem 2.2rem 2rem;
+            border: 1px solid rgba(0, 255, 200, 0.08);
+            box-shadow: 
+                0 25px 70px -12px rgba(0, 0, 0, 0.9),
+                0 0 40px rgba(0, 255, 200, 0.02),
+                inset 0 1px 0 rgba(0, 255, 200, 0.04);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 
+                0 30px 80px -12px rgba(0, 0, 0, 0.95),
+                0 0 60px rgba(0, 255, 200, 0.03),
+                inset 0 1px 0 rgba(0, 255, 200, 0.06);
+        }
+
+        /* ----- HEADER TERMINAL ----- */
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem 1rem;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(0, 255, 200, 0.06);
+        }
+
+        .terminal-title {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .terminal-dot.red { background: #ff4757; box-shadow: 0 0 8px rgba(255, 71, 87, 0.3); }
+        .terminal-dot.yellow { background: #ffa502; box-shadow: 0 0 8px rgba(255, 165, 2, 0.3); }
+        .terminal-dot.green { background: #00ffc8; box-shadow: 0 0 8px rgba(0, 255, 200, 0.3); }
+
+        .terminal-title-text {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: #7ab8a8;
+            letter-spacing: 0.5px;
+        }
+
+        .terminal-title-text strong {
+            color: #00ffc8;
+            font-weight: 600;
+        }
+
+        .terminal-status {
+            font-size: 0.65rem;
+            color: #3d6a5e;
+            font-family: 'Share Tech Mono', monospace;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .terminal-status .online {
+            color: #00ffc8;
+            animation: blink 1.2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
+        /* ----- PROMPT LINE ----- */
+        .prompt-line {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            color: #5a9a8a;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .prompt-line .user {
+            color: #00ffc8;
+            font-weight: 600;
+        }
+
+        .prompt-line .path {
+            color: #4d7a6e;
+        }
+
+        .prompt-line .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 18px;
+            background: #00ffc8;
+            animation: blinkCursor 1s step-end infinite;
+        }
+
+        @keyframes blinkCursor {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* ----- LAYOUT PRINCIPAL (2 columnas) ----- */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 820px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ----- OPERADOR SELECTOR ----- */
+        .operator-section {
+            margin-bottom: 1.2rem;
+        }
+
+        .operator-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #3d6a5e;
+            font-family: 'Share Tech Mono', monospace;
+            margin-bottom: 0.5rem;
+        }
+
+        .operator-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .operator-btn {
+            background: rgba(0, 255, 200, 0.02);
+            border: 1px solid rgba(0, 255, 200, 0.06);
+            padding: 0.35rem 1.2rem;
+            border-radius: 4px;
+            font-weight: 400;
+            font-size: 0.75rem;
+            color: #5a9a8a;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex: 0 1 auto;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .operator-btn:hover {
+            background: rgba(0, 255, 200, 0.06);
+            border-color: rgba(0, 255, 200, 0.12);
+            color: #b0e0d0;
+        }
+
+        .operator-btn.active {
+            background: rgba(0, 255, 200, 0.08);
+            border-color: #00ffc8;
+            color: #00ffc8;
+            box-shadow: 0 0 20px rgba(0, 255, 200, 0.02);
+        }
+
+        .operator-btn .op-count {
+            font-size: 0.55rem;
+            background: rgba(0, 255, 200, 0.04);
+            padding: 0.02rem 0.5rem;
+            border-radius: 2px;
+            color: #4d7a6e;
+        }
+
+        .operator-btn.active .op-count {
+            background: rgba(0, 255, 200, 0.08);
+            color: #00ffc8;
+        }
+
+        /* ----- CONTROLES DE CANTIDAD ----- */
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.8rem 1.2rem;
+            margin-bottom: 1.2rem;
+            background: rgba(0, 255, 200, 0.02);
+            padding: 0.4rem 1.2rem;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 255, 200, 0.04);
+        }
+
+        .controls-row label {
+            font-size: 0.6rem;
+            color: #4d7a6e;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .controls-row input[type="number"] {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 200, 0.08);
+            border-radius: 4px;
+            padding: 0.2rem 0.6rem;
+            width: 70px;
+            color: #00ffc8;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .controls-row input[type="number"]:focus {
+            border-color: #00ffc8;
+            box-shadow: 0 0 15px rgba(0, 255, 200, 0.03);
+        }
+
+        .controls-row .stats {
+            color: #4d7a6e;
+            font-size: 0.7rem;
+            margin-left: auto;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .controls-row .stats strong {
+            color: #00ffc8;
+            font-weight: 600;
+        }
+
+        /* ----- LISTA DE NÚMEROS (generados) ----- */
+        .numbers-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            border: 1px solid rgba(0, 255, 200, 0.04);
+            margin-bottom: 1.2rem;
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 255, 200, 0.06) transparent;
+        }
+
+        .numbers-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .numbers-container::-webkit-scrollbar-track { background: transparent; }
+        .numbers-container::-webkit-scrollbar-thumb { background: rgba(0, 255, 200, 0.08); border-radius: 4px; }
+
+        .number-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 1.2rem;
+            border-bottom: 1px solid rgba(0, 255, 200, 0.02);
+            transition: background 0.12s ease;
+            flex-wrap: wrap;
+            gap: 0.3rem 0.8rem;
+        }
+
+        .number-item:hover {
+            background: rgba(0, 255, 200, 0.015);
+        }
+        .number-item:last-child { border-bottom: none; }
+
+        .number-item .num {
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: 400;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            color: #b0e0d0;
+        }
+
+        .number-item .meta {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .number-item .tag {
+            font-size: 0.5rem;
+            font-weight: 400;
+            padding: 0.1rem 0.6rem;
+            border-radius: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Share Tech Mono', monospace;
+            border: 1px solid transparent;
+        }
+
+        .tag-verizon { background: rgba(0, 100, 255, 0.1); color: #5b9aff; border-color: rgba(0, 100, 255, 0.06); }
+        .tag-tmobile { background: rgba(255, 0, 80, 0.08); color: #ff6b8a; border-color: rgba(255, 0, 80, 0.05); }
+        .tag-att { background: rgba(0, 180, 255, 0.08); color: #4dc9ff; border-color: rgba(0, 180, 255, 0.05); }
+        .tag-sprint { background: rgba(255, 200, 0, 0.06); color: #ffd84d; border-color: rgba(255, 200, 0, 0.04); }
+        .tag-other { background: rgba(255, 255, 255, 0.03); color: #6a8a80; border-color: rgba(255, 255, 255, 0.02); }
+
+        .btn-action {
+            background: rgba(0, 255, 200, 0.02);
+            border: 1px solid rgba(0, 255, 200, 0.04);
+            padding: 0.15rem 0.7rem;
+            border-radius: 2px;
+            font-size: 0.5rem;
+            font-weight: 400;
+            color: #4d7a6e;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-action:hover {
+            background: rgba(0, 255, 200, 0.04);
+            border-color: rgba(0, 255, 200, 0.08);
+            color: #b0e0d0;
+        }
+        .btn-action:active { transform: scale(0.94); }
+
+        .btn-save-good {
+            border-color: rgba(0, 255, 200, 0.06);
+            color: #4d7a6e;
+        }
+        .btn-save-good:hover {
+            border-color: rgba(0, 255, 200, 0.15);
+            color: #00ffc8;
+        }
+        .btn-save-good.saved {
+            background: rgba(0, 255, 200, 0.06);
+            border-color: #00ffc8;
+            color: #00ffc8;
+        }
+
+        /* ----- LISTA DE GUARDADOS (buenos) ----- */
+        .saved-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            border: 1px solid rgba(0, 255, 200, 0.04);
+            margin-bottom: 1.2rem;
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 255, 200, 0.06) transparent;
+        }
+
+        .saved-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .saved-container::-webkit-scrollbar-track { background: transparent; }
+        .saved-container::-webkit-scrollbar-thumb { background: rgba(0, 255, 200, 0.08); border-radius: 4px; }
+
+        .saved-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 1.2rem;
+            border-bottom: 1px solid rgba(0, 255, 200, 0.02);
+            transition: background 0.12s ease;
+            flex-wrap: wrap;
+            gap: 0.3rem 0.8rem;
+        }
+
+        .saved-item:hover {
+            background: rgba(0, 255, 200, 0.015);
+        }
+        .saved-item:last-child { border-bottom: none; }
+
+        .saved-item .num {
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: 400;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            color: #00ffc8;
+        }
+
+        .saved-item .meta {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .saved-item .badge-good {
+            font-size: 0.5rem;
+            font-weight: 400;
+            padding: 0.1rem 0.6rem;
+            border-radius: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Share Tech Mono', monospace;
+            background: rgba(0, 255, 200, 0.06);
+            color: #00ffc8;
+            border: 1px solid rgba(0, 255, 200, 0.06);
+        }
+
+        .btn-remove-saved {
+            background: rgba(255, 0, 80, 0.02);
+            border: 1px solid rgba(255, 0, 80, 0.04);
+            padding: 0.15rem 0.7rem;
+            border-radius: 2px;
+            font-size: 0.5rem;
+            font-weight: 400;
+            color: #5a3a42;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-remove-saved:hover {
+            background: rgba(255, 0, 80, 0.04);
+            border-color: rgba(255, 0, 80, 0.06);
+            color: #ff6b8a;
+        }
+        .btn-remove-saved:active { transform: scale(0.94); }
+
+        .empty-state {
+            padding: 1.5rem 1.5rem;
+            text-align: center;
+            color: #3d6a5e;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+        }
+
+        .empty-state span {
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 0.2rem;
+            opacity: 0.3;
+        }
+
+        .empty-state .blink {
+            animation: blink 1.5s infinite;
+        }
+
+        /* ----- SECCIÓN DE GUARDADOS (header) ----- */
+        .saved-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.6rem;
+        }
+
+        .saved-header .title {
+            font-size: 0.7rem;
+            color: #00ffc8;
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .saved-header .count {
+            font-size: 0.6rem;
+            color: #4d7a6e;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .saved-header .count strong {
+            color: #00ffc8;
+        }
+
+        /* ----- BOTONES DE ACCIÓN ----- */
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .btn {
+            border: 1px solid rgba(0, 255, 200, 0.06);
+            padding: 0.5rem 1.8rem;
+            border-radius: 4px;
+            font-weight: 400;
+            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            flex: 1 1 auto;
+            min-width: 100px;
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            background: rgba(0, 255, 200, 0.02);
+            color: #5a9a8a;
+        }
+
+        .btn-primary {
+            background: rgba(0, 255, 200, 0.04);
+            border-color: rgba(0, 255, 200, 0.08);
+            color: #b0e0d0;
+        }
+        .btn-primary:hover {
+            background: rgba(0, 255, 200, 0.06);
+            border-color: rgba(0, 255, 200, 0.12);
+            color: #00ffc8;
+            transform: translateY(-1px);
+            box-shadow: 0 0 20px rgba(0, 255, 200, 0.02);
+        }
+        .btn-primary:active { transform: scale(0.96); }
+
+        .btn-secondary {
+            background: rgba(0, 255, 200, 0.01);
+            border-color: rgba(0, 255, 200, 0.03);
+            color: #4d7a6e;
+        }
+        .btn-secondary:hover {
+            background: rgba(0, 255, 200, 0.03);
+            border-color: rgba(0, 255, 200, 0.06);
+            color: #8ab8a8;
+            transform: translateY(-1px);
+        }
+        .btn-secondary:active { transform: scale(0.96); }
+
+        .btn-danger {
+            background: rgba(255, 0, 80, 0.02);
+            border-color: rgba(255, 0, 80, 0.04);
+            color: #5a3a42;
+        }
+        .btn-danger:hover {
+            background: rgba(255, 0, 80, 0.04);
+            border-color: rgba(255, 0, 80, 0.06);
+            color: #ff6b8a;
+            transform: translateY(-1px);
+        }
+        .btn-danger:active { transform: scale(0.96); }
+
+        .btn-success {
+            background: rgba(0, 255, 200, 0.03);
+            border-color: rgba(0, 255, 200, 0.06);
+            color: #4d7a6e;
+        }
+        .btn-success:hover {
+            background: rgba(0, 255, 200, 0.05);
+            border-color: rgba(0, 255, 200, 0.10);
+            color: #00ffc8;
+            transform: translateY(-1px);
+        }
+
+        .btn-icon {
+            font-size: 0.9rem;
+            line-height: 1;
+        }
+
+        /* ----- FOOTER ----- */
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid rgba(0, 255, 200, 0.04);
+        }
+
+        .footer-info {
+            font-size: 0.55rem;
+            color: #3d6a5e;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-info .dot {
+            width: 2px;
+            height: 2px;
+            background: #2d5a4e;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .footer-info strong {
+            color: #5a9a8a;
+            font-weight: 400;
+        }
+
+        .footer-badge {
+            background: rgba(0, 255, 200, 0.02);
+            padding: 0.1rem 0.8rem;
+            border-radius: 2px;
+            font-size: 0.55rem;
+            color: #3d6a5e;
+            font-family: 'Share Tech Mono', monospace;
+            border: 1px solid rgba(0, 255, 200, 0.02);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-badge span {
+            color: #00ffc8;
+        }
+
+        /* ----- RESPONSIVE ----- */
+        @media (max-width: 820px) {
+            .card { padding: 1.2rem 1.2rem 1.5rem; border-radius: 12px; }
+            .terminal-title-text { font-size: 0.9rem; }
+            .prompt-line { font-size: 0.7rem; }
+            .number-item .num, .saved-item .num { font-size: 0.85rem; }
+            .operator-btn { padding: 0.25rem 0.8rem; font-size: 0.65rem; }
+            .btn { padding: 0.4rem 1rem; font-size: 0.65rem; min-width: 80px; }
+            .controls-row { padding: 0.3rem 0.8rem; }
+            .controls-row input[type="number"] { width: 60px; font-size: 0.75rem; }
+            body::after { font-size: 28vw; }
+        }
+
+        @media (max-width: 480px) {
+            .card { padding: 0.8rem 0.8rem 1.2rem; border-radius: 8px; }
+            .number-item { padding: 0.4rem 0.8rem; }
+            .saved-item { padding: 0.4rem 0.8rem; }
+            .number-item .meta, .saved-item .meta { width: 100%; justify-content: flex-start; }
+            .controls-row { flex-direction: column; align-items: stretch; gap: 0.3rem; border-radius: 4px; }
+            .controls-row .stats { margin-left: 0; text-align: right; }
+            .action-row .btn { min-width: 100%; }
+            .terminal-title-text { font-size: 0.8rem; }
+            .prompt-line { font-size: 0.65rem; flex-wrap: wrap; }
+            body::after { font-size: 35vw; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <!-- HEADER TERMINAL -->
+    <div class="terminal-header">
+        <div class="terminal-title">
+            <span class="terminal-dot red"></span>
+            <span class="terminal-dot yellow"></span>
+            <span class="terminal-dot green"></span>
+            <span class="terminal-title-text"><strong>●</strong> NUMBER FORGE <span style="color:#3d6a5e;">v2.2</span></span>
+        </div>
+        <div class="terminal-status">
+            <span class="online">● ONLINE</span>
+            <span style="color:#3d6a5e;">|</span>
+            <span id="totalDisplay">0</span> nums
+        </div>
+    </div>
+
+    <!-- PROMPT -->
+    <div class="prompt-line">
+        <span class="user">root@hackersin</span>
+        <span class="path">~/generator</span>
+        <span style="color:#3d6a5e;">$</span>
+        <span style="color:#4d7a6e;">./forge --save-good</span>
+        <span class="cursor"></span>
+    </div>
+
+    <!-- MAIN LAYOUT -->
+    <div class="main-layout">
+
+        <!-- COLUMNA IZQUIERDA: GENERADOR -->
+        <div>
+
+            <!-- OPERADORES -->
+            <div class="operator-section">
+                <div class="operator-label">◆ FILTER</div>
+                <div class="operator-grid" id="operatorSelector">
+                    <button class="operator-btn active" data-operator="all">
+                        <span>⊞</span> all <span class="op-count">∞</span>
+                    </button>
+                    <button class="operator-btn" data-operator="verizon">
+                        <span>▣</span> vz <span class="op-count">∞</span>
+                    </button>
+                    <button class="operator-btn" data-operator="tmobile">
+                        <span>▣</span> tmo <span class="op-count">∞</span>
+                    </button>
+                    <button class="operator-btn" data-operator="att">
+                        <span>▣</span> att <span class="op-count">∞</span>
+                    </button>
+                    <button class="operator-btn" data-operator="sprint">
+                        <span>▣</span> spr <span class="op-count">∞</span>
+                    </button>
+                    <button class="operator-btn" data-operator="other">
+                        <span>▣</span> otr <span class="op-count">∞</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CANTIDAD -->
+            <div class="controls-row">
+                <label for="quantityInput">◆ count</label>
+                <input type="number" id="quantityInput" value="10" min="1" max="999">
+                <span class="stats">generated: <strong id="generatedCount">0</strong></span>
+            </div>
+
+            <!-- LISTA DE NÚMEROS GENERADOS -->
+            <div class="numbers-container" id="numbersList">
+                <div class="empty-state">
+                    <span>◈</span>
+                    [ system ready ]<br>
+                    <span class="blink">▸</span> press <span style="color:#00ffc8;">GENERATE</span> to start
+                </div>
+            </div>
+
+            <!-- BOTONES DE ACCIÓN -->
+            <div class="action-row">
+                <button class="btn btn-primary" id="generateBtn">
+                    <span class="btn-icon">⚡</span> generate
+                </button>
+                <button class="btn btn-secondary" id="copyAllBtn">
+                    <span class="btn-icon">📋</span> copy all
+                </button>
+                <button class="btn btn-danger" id="clearBtn">
+                    <span class="btn-icon">✕</span> clear
+                </button>
+            </div>
+        </div>
+
+        <!-- COLUMNA DERECHA: GUARDADOS (BUENOS) -->
+        <div>
+            <div class="saved-header">
+                <span class="title">◆ SAVED · GOOD NUMBERS</span>
+                <span class="count">total: <strong id="savedCount">0</strong></span>
+            </div>
+
+            <div class="saved-container" id="savedList">
+                <div class="empty-state">
+                    <span>☆</span>
+                    no saved numbers<br>
+                    <span style="font-size:0.6rem; opacity:0.5;">mark as GOOD to save</span>
+                </div>
+            </div>
+
+            <div class="action-row">
+                <button class="btn btn-success" id="exportSavedBtn">
+                    <span class="btn-icon">📤</span> export all
+                </button>
+                <button class="btn btn-danger" id="clearSavedBtn">
+                    <span class="btn-icon">✕</span> clear saved
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div class="footer-info">
+            <strong>◈</strong> real prefixes
+            <span class="dot"></span>
+            <strong>◈</strong> assigned carriers
+            <span class="dot"></span>
+            <span>nanpa · e.164</span>
+        </div>
+        <div class="footer-badge"><span>⚡</span> ray · saved edition</div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        "use strict";
+
+        // --------------------------------------------------------------
+        //  BASE DE DATOS DE OPERADORES (prefijos + operador)
+        // --------------------------------------------------------------
+        const OPERATOR_PREFIXES = {
+            verizon: [
+                { area: "201", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "212", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "310", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "347", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "415", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "425", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "480", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "520", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "602", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "631", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "650", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "703", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "713", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "718", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "732", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "818", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "917", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+            ],
+            tmobile: [
+                { area: "206", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "312", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "404", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "480", prefix: ["300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","348","349","350","351","352","353","354","355","356","357","358","359","360","361","362","363","364","365","366","367","368","369","370","371","372","373","374","375","376","377","378","379","380","381","382","383","384","385","386","387","388","389","390","391","392","393","394","395","396","397","398","399"] },
+                { area: "512", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "617", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "702", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "713", prefix: ["300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","348","349","350","351","352","353","354","355","356","357","358","359","360","361","362","363","364","365","366","367","368","369","370","371","372","373","374","375","376","377","378","379","380","381","382","383","384","385","386","387","388","389","390","391","392","393","394","395","396","397","398","399"] },
+                { area: "818", prefix: ["300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","348","349","350","351","352","353","354","355","356","357","358","359","360","361","362","363","364","365","366","367","368","369","370","371","372","373","374","375","376","377","378","379","380","381","382","383","384","385","386","387","388","389","390","391","392","393","394","395","396","397","398","399"] },
+                { area: "917", prefix: ["300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","348","349","350","351","352","353","354","355","356","357","358","359","360","361","362","363","364","365","366","367","368","369","370","371","372","373","374","375","376","377","378","379","380","381","382","383","384","385","386","387","388","389","390","391","392","393","394","395","396","397","398","399"] },
+            ],
+            att: [
+                { area: "214", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "303", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "404", prefix: ["300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","348","349","350","351","352","353","354","355","356","357","358","359","360","361","362","363","364","365","366","367","368","369","370","371","372","373","374","375","376","377","378","379","380","381","382","383","384","385","386","387","388","389","390","391","392","393","394","395","396","397","398","399"] },
+                { area: "415", prefix: ["300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","348","349","350","351","352","353","354","355","356","357","358","359","360","361","362","363","364","365","366","367","368","369","370","371","372","373","374","375","376","377","378","379","380","381","382","383","384","385","386","387","388","389","390","391","392","393","394","395","396","397","398","399"] },
+                { area: "469", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "512", prefix: ["300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","348","349","350","351","352","353","354","355","356","357","358","359","360","361","362","363","364","365","366","367","368","369","370","371","372","373","374","375","376","377","378","379","380","381","382","383","384","385","386","387","388","389","390","391","392","393","394","395","396","397","398","399"] },
+                { area: "602", prefix: ["300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","348","349","350","351","352","353","354","355","356","357","358","359","360","361","362","363","364","365","366","367","368","369","370","371","372","373","374","375","376","377","378","379","380","381","382","383","384","385","386","387","388","389","390","391","392","393","394","395","396","397","398","399"] },
+                { area: "703", prefix: ["300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","348","349","350","351","352","353","354","355","356","357","358","359","360","361","362","363","364","365","366","367","368","369","370","371","372","373","374","375","376","377","378","379","380","381","382","383","384","385","386","387","388","389","390","391","392","393","394","395","396","397","398","399"] },
+                { area: "817", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "901", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+            ],
+            sprint: [
+                { area: "201", prefix: ["300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","348","349","350","351","352","353","354","355","356","357","358","359","360","361","362","363","364","365","366","367","368","369","370","371","372","373","374","375","376","377","378","379","380","381","382","383","384","385","386","387","388","389","390","391","392","393","394","395","396","397","398","399"] },
+                { area: "303", prefix: ["300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","348","349","350","351","352","353","354","355","356","357","358","359","360","361","362","363","364","365","366","367","368","369","370","371","372","373","374","375","376","377","378","379","380","381","382","383","384","385","386","387","388","389","390","391","392","393","394","395","396","397","398","399"] },
+                { area: "312", prefix: ["300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","348","349","350","351","352","353","354","355","356","357","358","359","360","361","362","363","364","365","366","367","368","369","370","371","372","373","374","375","376","377","378","379","380","381","382","383","384","385","386","387","388","389","390","391","392","393","394","395","396","397","398","399"] },
+                { area: "402", prefix: ["200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299"] },
+                { area: "480", prefix: ["400","401","402","403","404","405","406","407","408","409","410","411","412","413","414","415","416","417","418","419","420","421","422","423","424","425","426","427","428","429","430","431","432","433","434","435","436","437","438","439","440","441","442","443","444","445","446","447","448","449","450","451","452","453","454","455","456","457","458","459","460","461","462","463","464","465","466","467","468","469","470","471","472","473","474","475","476","477","478","479","480","481","482","483","484","485","486","487","488","489","490","491","492","493","494","495","496","497","498","499"] },
+                { area: "512", prefix: ["400","401","402","403","404","405","406","407","408","409","410","411","412","413","414","415","416","417","418","419","420","421","422","423","424","425","426","427","428","429","430","431","432","433","434","435","436","437","438","439","440","441","442","443","444","445","446","447","448","449","450","451","452","453","454","455","456","457","458","459","460","461","462","463","464","465","466","467","468","469","470","471","472","473","474","475","476","477","478","479","480","481","482","483","484","485","486","487","488","489","490","491","492","493","494","495","496","497","498","499"] },
+                { area: "702", prefix: ["300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","348","349","350","351","352","353","354","355","356","357","358","359","360","361","362","363","364","365","366","367","368","369","370","371","372","373","374","375","376","377","378","379","380","381","382","383","384","385","386","387","388","389","390","391","392","393","394","395","396","397","398","399"] },
+                { area: "713", prefix: ["400","401","402","403","404","405","406","407","408","409","410","411","412","413","414","415","416","417","418","419","420","421","422","423","424","425","426","427","428","429","430","431","432","433","434","435","436","437","438","439","440","441","442","443","444","445","446","447","448","449","450","451","452","453","454","455","456","457","458","459","460","461","462","463","464","465","466","467","468","469","470","471","472","473","474","475","476","477","478","479","480","481","482","483","484","485","486","487","488","489","490","491","492","493","494","495","496","497","498","499"] },
+                { area: "818", prefix: ["400","401","402","403","404","405","406","407","408","409","410","411","412","413","414","415","416","417","418","419","420","421","422","423","424","425","426","427","428","429","430","431","432","433","434","435","436","437","438","439","440","441","442","443","444","445","446","447","448","449","450","451","452","453","454","455","456","457","458","459","460","461","462","463","464","465","466","467","468","469","470","471","472","473","474","475","476","477","478","479","480","481","482","483","484","485","486","487","488","489","490","491","492","493","494","495","496","497","498","499"] },
+                { area: "917", prefix: ["400","401","402","403","404","405","406","407","408","409","410","411","412","413","414","415","416","417","418","419","420","421","422","423","424","425","426","427","428","429","430","431","432","433","434","435","436","437","438","439","440","441","442","443","444","445","446","447","448","449","450","451","452","453","454","455","456","457","458","459","460","461","462","463","464","465","466","467","468","469","470","471","472","473","474","475","476","477","478","479","480","481","482","483","484","485","486","487","488","489","490","491","492","493","494","495","496","497","498","499"] },
+            ],
+            other: [
+                { area: "201", prefix: ["500","501","502","503","504","505","506","507","508","509","510","511","512","513","514","515","516","517","518","519","520","521","522","523","524","525","526","527","528","529","530","531","532","533","534","535","536","537","538","539","540","541","542","543","544","545","546","547","548","549","550","551","552","553","554","555","556","557","558","559","560","561","562","563","564","565","566","567","568","569","570","571","572","573","574","575","576","577","578","579","580","581","582","583","584","585","586","587","588","589","590","591","592","593","594","595","596","597","598","599"] },
+                { area: "212", prefix: ["500","501","502","503","504","505","506","507","508","509","510","511","512","513","514","515","516","517","518","519","520","521","522","523","524","525","526","527","528","529","530","531","532","533","534","535","536","537","538","539","540","541","542","543","544","545","546","547","548","549","550","551","552","553","554","555","556","557","558","559","560","561","562","563","564","565","566","567","568","569","570","571","572","573","574","575","576","577","578","579","580","581","582","583","584","585","586","587","588","589","590","591","592","593","594","595","596","597","598","599"] },
+                { area: "310", prefix: ["500","501","502","503","504","505","506","507","508","509","510","511","512","513","514","515","516","517","518","519","520","521","522","523","524","525","526","527","528","529","530","531","532","533","534","535","536","537","538","539","540","541","542","543","544","545","546","547","548","549","550","551","552","553","554","555","556","557","558","559","560","561","562","563","564","565","566","567","568","569","570","571","572","573","574","575","576","577","578","579","580","581","582","583","584","585","586","587","588","589","590","591","592","593","594","595","596","597","598","599"] },
+                { area: "404", prefix: ["500","501","502","503","504","505","506","507","508","509","510","511","512","513","514","515","516","517","518","519","520","521","522","523","524","525","526","527","528","529","530","531","532","533","534","535","536","537","538","539","540","541","542","543","544","545","546","547","548","549","550","551","552","553","554","555","556","557","558","559","560","561","562","563","564","565","566","567","568","569","570","571","572","573","574","575","576","577","578","579","580","581","582","583","584","585","586","587","588","589","590","591","592","593","594","595","596","597","598","599"] },
+                { area: "512", prefix: ["500","501","502","503","504","505","506","507","508","509","510","511","512","513","514","515","516","517","518","519","520","521","522","523","524","525","526","527","528","529","530","531","532","533","534","535","536","537","538","539","540","541","542","543","544","545","546","547","548","549","550","551","552","553","554","555","556","557","558","559","560","561","562","563","564","565","566","567","568","569","570","571","572","573","574","575","576","577","578","579","580","581","582","583","584","585","586","587","588","589","590","591","592","593","594","595","596","597","598","599"] },
+                { area: "702", prefix: ["500","501","502","503","504","505","506","507","508","509","510","511","512","513","514","515","516","517","518","519","520","521","522","523","524","525","526","527","528","529","530","531","532","533","534","535","536","537","538","539","540","541","542","543","544","545","546","547","548","549","550","551","552","553","554","555","556","557","558","559","560","561","562","563","564","565","566","567","568","569","570","571","572","573","574","575","576","577","578","579","580","581","582","583","584","585","586","587","588","589","590","591","592","593","594","595","596","597","598","599"] },
+                { area: "713", prefix: ["500","501","502","503","504","505","506","507","508","509","510","511","512","513","514","515","516","517","518","519","520","521","522","523","524","525","526","527","528","529","530","531","532","533","534","535","536","537","538","539","540","541","542","543","544","545","546","547","548","549","550","551","552","553","554","555","556","557","558","559","560","561","562","563","564","565","566","567","568","569","570","571","572","573","574","575","576","577","578","579","580","581","582","583","584","585","586","587","588","589","590","591","592","593","594","595","596","597","598","599"] },
+                { area: "818", prefix: ["500","501","502","503","504","505","506","507","508","509","510","511","512","513","514","515","516","517","518","519","520","521","522","523","524","525","526","527","528","529","530","531","532","533","534","535","536","537","538","539","540","541","542","543","544","545","546","547","548","549","550","551","552","553","554","555","556","557","558","559","560","561","562","563","564","565","566","567","568","569","570","571","572","573","574","575","576","577","578","579","580","581","582","583","584","585","586","587","588","589","590","591","592","593","594","595","596","597","598","599"] },
+                { area: "917", prefix: ["500","501","502","503","504","505","506","507","508","509","510","511","512","513","514","515","516","517","518","519","520","521","522","523","524","525","526","527","528","529","530","531","532","533","534","535","536","537","538","539","540","541","542","543","544","545","546","547","548","549","550","551","552","553","554","555","556","557","558","559","560","561","562","563","564","565","566","567","568","569","570","571","572","573","574","575","576","577","578","579","580","581","582","583","584","585","586","587","588","589","590","591","592","593","594","595","596","597","598","599"] },
+            ]
+        };
+
+        // --------------------------------------------------------------
+        //  LÓGICA PRINCIPAL
+        // --------------------------------------------------------------
+        const numbersListEl = document.getElementById('numbersList');
+        const savedListEl = document.getElementById('savedList');
+        const generateBtn = document.getElementById('generateBtn');
+        const copyAllBtn = document.getElementById('copyAllBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const clearSavedBtn = document.getElementById('clearSavedBtn');
+        const exportSavedBtn = document.getElementById('exportSavedBtn');
+        const operatorBtns = document.querySelectorAll('.operator-btn');
+        const quantityInput = document.getElementById('quantityInput');
+        const totalDisplay = document.getElementById('totalDisplay');
+        const generatedCount = document.getElementById('generatedCount');
+        const savedCount = document.getElementById('savedCount');
+
+        let currentOperator = 'all';
+        let currentNumbers = [];
+        let savedNumbers = [];
+
+        // Cargar savedNumbers desde localStorage
+        try {
+            const stored = localStorage.getItem('ray_saved_numbers');
+            if (stored) {
+                savedNumbers = JSON.parse(stored);
+                if (!Array.isArray(savedNumbers)) savedNumbers = [];
+            }
+        } catch (e) { savedNumbers = []; }
+
+        function getPrefixesForOperator(op) {
+            if (op === 'all') {
+                let all = [];
+                for (let key in OPERATOR_PREFIXES) {
+                    all = all.concat(OPERATOR_PREFIXES[key]);
+                }
+                return all;
+            }
+            return OPERATOR_PREFIXES[op] || [];
+        }
+
+        function generateSingleNumber(operator) {
+            const prefixList = getPrefixesForOperator(operator);
+            if (!prefixList.length) return "(201) 555-1234";
+
+            const idx = Math.floor(Math.random() * prefixList.length);
+            const entry = prefixList[idx];
+            const area = entry.area;
+            const prefixes = entry.prefix;
+            const pIdx = Math.floor(Math.random() * prefixes.length);
+            const prefix3 = prefixes[pIdx];
+            const last4 = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+
+            return `(${area}) ${prefix3}-${last4}`;
+        }
+
+        function generateNumbers(count = 10, operator = currentOperator) {
+            const nums = [];
+            for (let i = 0; i < count; i++) {
+                nums.push(generateSingleNumber(operator));
+            }
+            return nums;
+        }
+
+        function detectOperator(num) {
+            const areaMatch = num.match(/\((\d{3})\)/);
+            const area = areaMatch ? areaMatch[1] : '';
+            const prefixMatch = num.match(/\)\s(\d{3})-/);
+            const prefix = prefixMatch ? prefixMatch[1] : '';
+
+            for (let key in OPERATOR_PREFIXES) {
+                const list = OPERATOR_PREFIXES[key];
+                for (let entry of list) {
+                    if (entry.area === area && entry.prefix.includes(prefix)) {
+                        return key;
+                    }
+                }
+            }
+            return 'other';
+        }
+
+        function renderNumbers(numbers) {
+            if (!numbers || numbers.length === 0) {
+                numbersListEl.innerHTML = `
+                    <div class="empty-state">
+                        <span>◈</span>
+                        [ system ready ]<br>
+                        <span class="blink">▸</span> press <span style="color:#00ffc8;">GENERATE</span> to start
+                    </div>
+                `;
+                totalDisplay.textContent = '0';
+                generatedCount.textContent = '0';
+                return;
+            }
+
+            let html = '';
+            numbers.forEach((num) => {
+                const opKey = detectOperator(num);
+                const opNames = { verizon: 'VZ', tmobile: 'TMO', att: 'ATT', sprint: 'SPR', other: 'OTR' };
+                const label = opNames[opKey] || 'OTR';
+                const tagClass = `tag-${opKey}`;
+                const isSaved = savedNumbers.includes(num);
+                const saveBtnClass = isSaved ? 'saved' : '';
+
+                html += `
+                    <div class="number-item">
+                        <span class="num">${num}</span>
+                        <div class="meta">
+                            <span class="tag ${tagClass}">${label}</span>
+                            <button class="btn-action btn-save-good ${saveBtnClass}" data-number="${num}">
+                                ${isSaved ? '★ saved' : '☆ good'}
+                            </button>
+                            <button class="btn-action copy-single" data-number="${num}">copy</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            numbersListEl.innerHTML = html;
+            totalDisplay.textContent = numbers.length;
+            generatedCount.textContent = numbers.length;
+
+            // Eventos: save good
+            document.querySelectorAll('.btn-save-good').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const number = this.getAttribute('data-number');
+                    toggleSaved(number, this);
+                });
+            });
+
+            // Eventos: copy
+            document.querySelectorAll('.copy-single').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const number = this.getAttribute('data-number');
+                    copyToClipboard(number, this);
+                });
+            });
+        }
+
+        function toggleSaved(number, btnElement) {
+            const index = savedNumbers.indexOf(number);
+            if (index > -1) {
+                savedNumbers.splice(index, 1);
+                if (btnElement) {
+                    btnElement.textContent = '☆ good';
+                    btnElement.classList.remove('saved');
+                }
+            } else {
+                savedNumbers.push(number);
+                if (btnElement) {
+                    btnElement.textContent = '★ saved';
+                    btnElement.classList.add('saved');
+                }
+            }
+            saveToLocalStorage();
+            renderSaved();
+        }
+
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('ray_saved_numbers', JSON.stringify(savedNumbers));
+            } catch (e) {}
+        }
+
+        function renderSaved() {
+            if (!savedNumbers || savedNumbers.length === 0) {
+                savedListEl.innerHTML = `
+                    <div class="empty-state">
+                        <span>☆</span>
+                        no saved numbers<br>
+                        <span style="font-size:0.6rem; opacity:0.5;">mark as GOOD to save</span>
+                    </div>
+                `;
+                savedCount.textContent = '0';
+                return;
+            }
+
+            let html = '';
+            savedNumbers.forEach((num) => {
+                html += `
+                    <div class="saved-item">
+                        <span class="num">${num}</span>
+                        <div class="meta">
+                            <span class="badge-good">★ good</span>
+                            <button class="btn-remove-saved" data-number="${num}">remove</button>
+                            <button class="btn-action copy-single" data-number="${num}">copy</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            savedListEl.innerHTML = html;
+            savedCount.textContent = savedNumbers.length;
+
+            // Eventos: remove
+            document.querySelectorAll('.btn-remove-saved').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const number = this.getAttribute('data-number');
+                    const index = savedNumbers.indexOf(number);
+                    if (index > -1) {
+                        savedNumbers.splice(index, 1);
+                        saveToLocalStorage();
+                        renderSaved();
+                        // Actualizar botones en la lista generada
+                        document.querySelectorAll('.btn-save-good').forEach(b => {
+                            if (b.getAttribute('data-number') === number) {
+                                b.textContent = '☆ good';
+                                b.classList.remove('saved');
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Eventos: copy en saved
+            document.querySelectorAll('.saved-item .copy-single').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const number = this.getAttribute('data-number');
+                    copyToClipboard(number, this);
+                });
+            });
+        }
+
+        function copyToClipboard(text, element) {
+            if (!text) return;
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text)
+                    .then(() => {
+                        if (element) {
+                            const original = element.innerHTML;
+                            element.innerHTML = '✓ done';
+                            setTimeout(() => { element.innerHTML = original; }, 1200);
+                        }
+                    })
+                    .catch(() => { fallbackCopy(text, element); });
+            } else {
+                fallbackCopy(text, element);
+            }
+        }
+
+        function fallbackCopy(text, element) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            textarea.style.top = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                if (element) {
+                    const original = element.innerHTML;
+                    element.innerHTML = '✓ done';
+                    setTimeout(() => { element.innerHTML = original; }, 1200);
+                }
+            } catch (err) {
+                alert('copy failed');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function copyAllNumbers() {
+            if (!currentNumbers.length) {
+                alert('no numbers to copy');
+                return;
+            }
+            const text = currentNumbers.join('\n');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text)
+                    .then(() => {
+                        const original = copyAllBtn.innerHTML;
+                        copyAllBtn.innerHTML = '✓ all copied';
+                        setTimeout(() => { copyAllBtn.innerHTML = original; }, 1800);
+                    })
+                    .catch(() => { fallbackCopy(text, copyAllBtn); });
+            } else {
+                fallbackCopy(text, copyAllBtn);
+            }
+        }
+
+        function exportSaved() {
+            if (!savedNumbers.length) {
+                alert('no saved numbers to export');
+                return;
+            }
+            const text = savedNumbers.join('\n');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text)
+                    .then(() => {
+                        const original = exportSavedBtn.innerHTML;
+                        exportSavedBtn.innerHTML = '✓ exported';
+                        setTimeout(() => { exportSavedBtn.innerHTML = original; }, 1800);
+                    })
+                    .catch(() => { fallbackCopy(text, exportSavedBtn); });
+            } else {
+                fallbackCopy(text, exportSavedBtn);
+            }
+        }
+
+        function clearSaved() {
+            if (!savedNumbers.length) return;
+            if (confirm('clear all saved numbers?')) {
+                savedNumbers = [];
+                saveToLocalStorage();
+                renderSaved();
+                // Actualizar botones en la lista generada
+                document.querySelectorAll('.btn-save-good').forEach(b => {
+                    b.textContent = '☆ good';
+                    b.classList.remove('saved');
+                });
+            }
+        }
+
+        function refreshNumbers() {
+            const count = parseInt(quantityInput.value) || 10;
+            const clamped = Math.min(Math.max(count, 1), 999);
+            quantityInput.value = clamped;
+            currentNumbers = generateNumbers(clamped, currentOperator);
+            renderNumbers(currentNumbers);
+        }
+
+        function clearNumbers() {
+            currentNumbers = [];
+            renderNumbers(currentNumbers);
+        }
+
+        function setActiveOperator(op) {
+            currentOperator = op;
+            operatorBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-operator') === op) {
+                    btn.classList.add('active');
+                }
+            });
+            refreshNumbers();
+        }
+
+        // Eventos
+        generateBtn.addEventListener('click', refreshNumbers);
+        copyAllBtn.addEventListener('click', copyAllNumbers);
+        clearBtn.addEventListener('click', clearNumbers);
+        clearSavedBtn.addEventListener('click', clearSaved);
+        exportSavedBtn.addEventListener('click', exportSaved);
+
+        operatorBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const op = this.getAttribute('data-operator');
+                setActiveOperator(op);
+            });
+        });
+
+        quantityInput.addEventListener('change', function() {
+            let val = parseInt(this.value) || 10;
+            val = Math.min(Math.max(val, 1), 999);
+            this.value = val;
+            if (currentNumbers.length) {
+                generatedCount.textContent = currentNumbers.length;
+            }
+        });
+
+        // Inicializar
+        setActiveOperator('all');
+        renderSaved();
+    })();
+</script>
+
+</body>
+</html>
