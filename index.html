@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal · Number Forge · Saved</title>
+    <title>ЯAY · Terminal Forge</title>
     <style>
         /* ----- RESET & BASE ----- */
         * {
@@ -47,7 +47,7 @@
         }
 
         body::after {
-            content: "RAY";
+            content: "ЯAY";
             position: fixed;
             top: 50%;
             left: 50%;
@@ -125,7 +125,7 @@
 
         .terminal-title-text {
             font-family: 'Share Tech Mono', monospace;
-            font-size: 1.1rem;
+            font-size: 1.3rem;
             font-weight: 400;
             color: #7ab8a8;
             letter-spacing: 0.5px;
@@ -133,7 +133,14 @@
 
         .terminal-title-text strong {
             color: #00ffc8;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .terminal-title-text .version {
+            color: #3d6a5e;
+            font-size: 0.8rem;
+            font-weight: 400;
         }
 
         .terminal-status {
@@ -691,7 +698,8 @@
         /* ----- RESPONSIVE ----- */
         @media (max-width: 820px) {
             .card { padding: 1.2rem 1.2rem 1.5rem; border-radius: 12px; }
-            .terminal-title-text { font-size: 0.9rem; }
+            .terminal-title-text { font-size: 1.1rem; }
+            .terminal-title-text strong { font-size: 1.2rem; }
             .prompt-line { font-size: 0.7rem; }
             .number-item .num, .saved-item .num { font-size: 0.85rem; }
             .operator-btn { padding: 0.25rem 0.8rem; font-size: 0.65rem; }
@@ -709,8 +717,9 @@
             .controls-row { flex-direction: column; align-items: stretch; gap: 0.3rem; border-radius: 4px; }
             .controls-row .stats { margin-left: 0; text-align: right; }
             .action-row .btn { min-width: 100%; }
-            .terminal-title-text { font-size: 0.8rem; }
-            .prompt-line { font-size: 0.65rem; flex-wrap: wrap; }
+            .terminal-title-text { font-size: 0.9rem; }
+            .terminal-title-text strong { font-size: 1rem; }
+            .prompt-line { font-size: 0.6rem; flex-wrap: wrap; }
             body::after { font-size: 35vw; }
         }
     </style>
@@ -724,7 +733,7 @@
             <span class="terminal-dot red"></span>
             <span class="terminal-dot yellow"></span>
             <span class="terminal-dot green"></span>
-            <span class="terminal-title-text"><strong>●</strong> NUMBER FORGE <span style="color:#3d6a5e;">v2.2</span></span>
+            <span class="terminal-title-text"><strong>ЯAY</strong> <span class="version">v2.2</span></span>
         </div>
         <div class="terminal-status">
             <span class="online">● ONLINE</span>
@@ -735,7 +744,7 @@
 
     <!-- PROMPT -->
     <div class="prompt-line">
-        <span class="user">root@hackersin</span>
+        <span class="user">bot@shadow</span>
         <span class="path">~/generator</span>
         <span style="color:#3d6a5e;">$</span>
         <span style="color:#4d7a6e;">./forge --save-good</span>
@@ -839,7 +848,7 @@
             <span class="dot"></span>
             <span>nanpa · e.164</span>
         </div>
-        <div class="footer-badge"><span>⚡</span> ray · saved edition</div>
+        <div class="footer-badge"><span>⚡</span> ЯAY · terminal edition</div>
     </div>
 </div>
 
