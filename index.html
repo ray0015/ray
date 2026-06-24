@@ -962,9 +962,157 @@
         }
         .ray-ext-banner.visible { display: block; }
         .ray-ext-banner strong { color: #ffd84d; }
+
+        /* ----- KEY GATE ----- */
+        #rayKeyGate {
+            position: fixed;
+            inset: 0;
+            background: #0a0e14;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        #rayKeyGate.hidden { display: none; }
+
+        .key-gate-box {
+            max-width: 460px;
+            width: 100%;
+            background: rgba(10, 14, 20, 0.98);
+            border: 1px solid rgba(0, 255, 200, 0.10);
+            border-radius: 12px;
+            padding: 2rem 2.2rem 2rem;
+            box-shadow:
+                0 30px 80px -10px rgba(0,0,0,0.95),
+                0 0 60px rgba(0,255,200,0.03),
+                inset 0 1px 0 rgba(0,255,200,0.06);
+        }
+
+        .key-gate-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1.6rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(0,255,200,0.06);
+        }
+
+        .key-gate-title {
+            font-size: 1.1rem;
+            color: #7ab8a8;
+        }
+
+        .key-gate-title strong { color: #00ffc8; font-size: 1.3rem; }
+
+        .key-gate-label {
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #3d6a5e;
+            margin-bottom: 0.5rem;
+        }
+
+        .key-gate-input {
+            width: 100%;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(0,255,200,0.10);
+            border-radius: 4px;
+            padding: 0.6rem 1rem;
+            color: #00ffc8;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            outline: none;
+            transition: border-color 0.2s;
+            margin-bottom: 1rem;
+        }
+
+        .key-gate-input:focus { border-color: rgba(0,255,200,0.35); }
+        .key-gate-input::placeholder { color: #2d5a4e; }
+
+        .key-gate-btn {
+            width: 100%;
+            background: rgba(0,255,200,0.04);
+            border: 1px solid rgba(0,255,200,0.10);
+            border-radius: 4px;
+            padding: 0.6rem;
+            color: #b0e0d0;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+
+        .key-gate-btn:hover {
+            background: rgba(0,255,200,0.08);
+            border-color: rgba(0,255,200,0.20);
+            color: #00ffc8;
+        }
+
+        .key-gate-btn:active { transform: scale(0.97); }
+
+        .key-gate-error {
+            font-size: 0.6rem;
+            color: #ff6b8a;
+            margin-top: 0.7rem;
+            min-height: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .key-gate-info {
+            margin-top: 1.4rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid rgba(0,255,200,0.04);
+            font-size: 0.52rem;
+            color: #2d5a4e;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        .key-gate-expiry {
+            margin-top: 0.4rem;
+            font-size: 0.52rem;
+            color: #3d6a5e;
+            text-align: center;
+            display: none;
+        }
     </style>
 </head>
 <body>
+
+<!-- ============================================================
+     KEY GATE — pantalla de acceso con clave temporal (7 días)
+     ============================================================ -->
+<div id="rayKeyGate">
+    <div class="key-gate-box">
+        <div class="key-gate-header">
+            <span class="terminal-dot red"></span>
+            <span class="terminal-dot yellow"></span>
+            <span class="terminal-dot green"></span>
+            <span class="key-gate-title"><strong>ЯAY</strong> · acceso restringido</span>
+        </div>
+
+        <div class="key-gate-label">◆ clave de acceso</div>
+        <input
+            type="password"
+            id="keyGateInput"
+            class="key-gate-input"
+            placeholder="RAY7D-XXXX-XXXX"
+            autocomplete="off"
+            spellcheck="false"
+        />
+        <button class="key-gate-btn" id="keyGateBtn">⚡ activar sesión</button>
+        <div class="key-gate-error" id="keyGateError"></div>
+        <div class="key-gate-info">
+            ◈ duración según tu clave · contacta al admin para obtener acceso
+        </div>
+    </div>
+</div>
 
 <!-- Banner: extensión no detectada -->
 <div class="ray-ext-banner" id="rayExtBanner">
@@ -1121,6 +1269,136 @@
 
 
 <script>
+// ============================================================
+//  KEY GATE — Sistema de claves temporales (7 días)
+// ============================================================
+// INSTRUCCIONES PARA EL ADMIN:
+//   1. Para generar una clave nueva, copia el texto que quieras usar como clave
+//      y calcula su SHA-256. Herramienta online: https://emn178.github.io/online-tools/sha256.html
+//   2. Pega el hash resultante en el array VALID_KEY_HASHES de abajo.
+//   3. Para revocar una clave, elimina su hash del array.
+//   4. Las claves expiran 7 días después de la PRIMERA vez que se usan (por usuario).
+//
+//  CLAVES DE EJEMPLO INCLUIDAS:
+//    RAY7D-ALFA-0001  →  hash en posición 0
+//    RAY7D-BETA-0002  →  hash en posición 1
+//    RAY7D-GAMA-0003  →  hash en posición 2
+// ============================================================
+(function () {
+    "use strict";
+
+    // Configura días y hashes por clave.
+    // hash  → SHA-256 de la clave (usa https://emn178.github.io/online-tools/sha256.html)
+    // days  → cuántos días dura la sesión desde que se activa por primera vez
+    // label → solo es un comentario tuyo; no se muestra al usuario
+    const VALID_KEYS = [
+        { hash: "09a3ec0674e7b3b1cb8a7cda9b82b91993cd488cf334967af09c87d6eb163da3", days: 7,  label: "RAY7D-ALFA-0001" },
+        { hash: "ab6de400597c13d44021fe5da643489590572ed57f2818e2f094a42c2e09a61a", days: 30, label: "RAY7D-BETA-0002" },
+        { hash: "db9171fcf4925cb5e403426d61b93886aa6045b5bf78b3855b6fcdbdb26dfbdf", days: 1,  label: "RAY7D-GAMA-0003" },
+        // { hash: "...", days: 14, label: "MI-CLAVE-NUEVA" },
+    ];
+
+    const SESSION_KEY = "ray_key_session";
+
+    const gateEl   = document.getElementById("rayKeyGate");
+    const inputEl  = document.getElementById("keyGateInput");
+    const btnEl    = document.getElementById("keyGateBtn");
+    const errorEl  = document.getElementById("keyGateError");
+
+    // Calcular SHA-256 del texto usando Web Crypto API
+    async function sha256(text) {
+        const buf = await crypto.subtle.digest(
+            "SHA-256",
+            new TextEncoder().encode(text.trim())
+        );
+        return Array.from(new Uint8Array(buf))
+            .map(function (b) { return b.toString(16).padStart(2, "0"); })
+            .join("");
+    }
+
+    // Buscar una clave válida por hash
+    function findKey(hash) {
+        return VALID_KEYS.find(function (k) { return k.hash === hash; }) || null;
+    }
+
+    // Verificar sesión guardada en localStorage
+    function checkStoredSession() {
+        try {
+            const raw = localStorage.getItem(SESSION_KEY);
+            if (!raw) return false;
+            const session = JSON.parse(raw);
+            if (!session || !session.hash || !session.expiresAt) return false;
+            if (Date.now() > session.expiresAt) {
+                localStorage.removeItem(SESSION_KEY);
+                return false;
+            }
+            if (!findKey(session.hash)) {
+                localStorage.removeItem(SESSION_KEY);
+                return false;
+            }
+            return true;
+        } catch (_) { return false; }
+    }
+
+    // Guardar sesión con duración configurada por la clave
+    function storeSession(hash, days) {
+        const ms = days * 24 * 60 * 60 * 1000;
+        localStorage.setItem(SESSION_KEY, JSON.stringify({
+            hash: hash,
+            expiresAt: Date.now() + ms,
+        }));
+    }
+
+    // Desbloquear la página
+    function unlock() {
+        gateEl.classList.add("hidden");
+    }
+
+    // Intentar activar la clave ingresada
+    async function tryKey() {
+        const raw = inputEl.value;
+        if (!raw.trim()) {
+            errorEl.textContent = "✕ ingresa tu clave de acceso";
+            return;
+        }
+        btnEl.textContent = "◌ verificando...";
+        btnEl.disabled = true;
+        errorEl.textContent = "";
+
+        try {
+            const hash = await sha256(raw);
+            const keyEntry = findKey(hash);
+            if (keyEntry) {
+                storeSession(hash, keyEntry.days);
+                unlock();
+            } else {
+                errorEl.textContent = "✕ clave inválida o revocada";
+                inputEl.value = "";
+                inputEl.focus();
+            }
+        } catch (e) {
+            errorEl.textContent = "✕ error al verificar — intenta de nuevo";
+        }
+
+        btnEl.textContent = "⚡ activar sesión";
+        btnEl.disabled = false;
+    }
+
+    // Al cargar: verificar si ya hay sesión activa
+    if (checkStoredSession()) {
+        unlock();
+    }
+
+    // Eventos
+    btnEl.addEventListener("click", tryKey);
+    inputEl.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") tryKey();
+    });
+})();
+
+// ============================================================
+//  APLICACIÓN PRINCIPAL
+// ============================================================
 (function () {
     "use strict";
 
@@ -1173,7 +1451,7 @@
     // ============================================================
     let currentNumbers = [];
     let currentOperator = 'all';
-    let savedNumbers = [];
+    let savedNumbers = [];   // array de objetos { number, profile }
     let extensionReady = false;
 
     // Cache de resultados para no repetir búsquedas
@@ -1208,14 +1486,22 @@
     // ============================================================
     try {
         const stored = localStorage.getItem('ray_saved_numbers');
-        if (stored) savedNumbers = JSON.parse(stored);
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            // Compatibilidad: formato antiguo era array de strings
+            if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'string') {
+                savedNumbers = parsed.map(function (n) { return { number: n, profile: null }; });
+            } else {
+                savedNumbers = parsed;
+            }
+        }
     } catch (_) {}
 
     // ============================================================
     //  COMUNICACIÓN CON LA EXTENSIÓN (via content-page.js)
     // ============================================================
 
-    // Detectar si el bridge de la extensión está activo
+    // Detectar si el bridge de la extensión está activo (sistema de ping activo)
     window.addEventListener('message', function (event) {
         if (event.source !== window) return;
         if (!event.data) return;
@@ -1232,12 +1518,17 @@
         }
     });
 
-    // Si la extensión no responde en 2 segundos, mostrar banner
-    setTimeout(function () {
-        if (!extensionReady) {
-            rayExtBanner.classList.add('visible');
+    // Polling activo: enviar ping cada 500ms hasta que responda (máx 10 segundos)
+    var pingAttempts = 0;
+    var pingInterval = setInterval(function () {
+        if (extensionReady) { clearInterval(pingInterval); return; }
+        pingAttempts++;
+        window.postMessage({ type: 'RAY_PING' }, '*');
+        if (pingAttempts >= 20) {
+            clearInterval(pingInterval);
+            if (!extensionReady) rayExtBanner.classList.add('visible');
         }
-    }, 2000);
+    }, 500);
 
     // ---- Iniciar búsqueda ----
     function searchPhone(phone, btnEl) {
@@ -1286,6 +1577,10 @@
         // Guardar en caché solo si hay resultados reales
         if (data.status === 'ok') {
             searchCache[phone] = data;
+            // Auto-guardar con perfil si encontró resultados
+            if (data.profiles && data.profiles.length > 0) {
+                autoSaveWithProfile(phone, data.profiles[0]);
+            }
         }
 
         // Si el modal está abierto para este número, actualizar
@@ -1319,53 +1614,42 @@
             return;
         }
 
+        function tags(list) {
+            return list.map(function (v) { return `<span class="ray-tag">${escapeHtml(v)}</span>`; }).join('');
+        }
+
         let html = '<div class="ray-profiles">';
-        data.profiles.forEach(function (p, i) {
+        data.profiles.forEach(function (p) {
             html += `<div class="ray-profile">`;
+
             if (p.name) {
                 html += `<div class="ray-profile-name">◈ <span>${escapeHtml(p.name)}</span></div>`;
             }
             if (p.age) {
                 html += field('age', p.age);
             }
-            if (p.address) {
-                html += field('address', p.address);
+            if (p.addressCurrent) {
+                html += field('address', p.addressCurrent);
             }
-            if (p.addresses && p.addresses.length) {
-                html += field('addresses', p.addresses.join(' / '));
+            if (p.addressPrevious && p.addressPrevious.length) {
+                html += `<div class="ray-field"><span class="ray-field-key">prev addr</span><span class="ray-field-val"><div class="ray-tags">${tags(p.addressPrevious)}</div></span></div>`;
+            }
+            if (p.aka && p.aka.length) {
+                html += `<div class="ray-field"><span class="ray-field-key">aka</span><span class="ray-field-val"><div class="ray-tags">${tags(p.aka)}</div></span></div>`;
             }
             if (p.phones && p.phones.length) {
-                html += field('phones', p.phones.join(' · '));
-            }
-            if (p.emails && p.emails.length) {
-                html += field('emails', p.emails.join(' · '));
+                html += `<div class="ray-field"><span class="ray-field-key">phones</span><span class="ray-field-val"><div class="ray-tags">${tags(p.phones)}</div></span></div>`;
             }
             if (p.relatives && p.relatives.length) {
-                html += `<div class="ray-field">
-                    <span class="ray-field-key">relatives</span>
-                    <span class="ray-field-val">
-                        <div class="ray-tags">
-                            ${p.relatives.map(function (r) { return `<span class="ray-tag">${escapeHtml(r)}</span>`; }).join('')}
-                        </div>
-                    </span>
-                </div>`;
+                html += `<div class="ray-field"><span class="ray-field-key">relatives</span><span class="ray-field-val"><div class="ray-tags">${tags(p.relatives)}</div></span></div>`;
             }
-            if (p.relatedNames && p.relatedNames.length) {
-                html += `<div class="ray-field">
-                    <span class="ray-field-key">related</span>
-                    <span class="ray-field-val">
-                        <div class="ray-tags">
-                            ${p.relatedNames.map(function (r) { return `<span class="ray-tag">${escapeHtml(r)}</span>`; }).join('')}
-                        </div>
-                    </span>
-                </div>`;
+            if (p.associates && p.associates.length) {
+                html += `<div class="ray-field"><span class="ray-field-key">associates</span><span class="ray-field-val"><div class="ray-tags">${tags(p.associates)}</div></span></div>`;
             }
             if (p.profileUrl) {
-                html += `<div class="ray-field">
-                    <span class="ray-field-key">source</span>
-                    <span class="ray-field-val"><a href="${escapeHtml(p.profileUrl)}" target="_blank" rel="noopener">ver perfil →</a></span>
-                </div>`;
+                html += `<div class="ray-field"><span class="ray-field-key">source</span><span class="ray-field-val"><a href="${escapeHtml(p.profileUrl)}" target="_blank" rel="noopener">ver perfil →</a></span></div>`;
             }
+
             html += `</div>`;
         });
         html += '</div>';
@@ -1481,7 +1765,7 @@
             const opNames = { verizon: 'VZ', tmobile: 'TMO', att: 'ATT', sprint: 'SPR', other: 'OTR' };
             const label = opNames[opKey] || 'OTR';
             const tagClass = 'tag-' + opKey;
-            const isSaved = savedNumbers.includes(num);
+            const isSaved = isNumberSaved(num);
             const saveBtnClass = isSaved ? 'saved' : '';
             const cached = searchCache[num];
             const searchBtnClass = cached ? 'has-result' : '';
@@ -1546,14 +1830,31 @@
         }
 
         let html = '';
-        savedNumbers.forEach(function (num) {
+        savedNumbers.forEach(function (entry) {
+            const num = entry.number;
+            const p   = entry.profile;
             const cached = searchCache[num];
             const searchBtnClass = cached ? 'has-result' : '';
             const searchBtnText  = cached ? '◈ result' : '◌ buscar';
 
+            // Línea de perfil: nombre · edad · dirección
+            let profileLine = '';
+            if (p) {
+                const parts = [];
+                if (p.name)          parts.push(escapeHtml(p.name));
+                if (p.age)           parts.push(escapeHtml(p.age));
+                if (p.addressCurrent) parts.push(escapeHtml(p.addressCurrent));
+                if (parts.length) {
+                    profileLine = `<div style="font-size:0.55rem;color:#4d7a6e;margin-top:0.15rem;letter-spacing:0.3px;font-family:'Share Tech Mono',monospace;">${parts.join(' · ')}</div>`;
+                }
+            }
+
             html += `
                 <div class="saved-item">
-                    <span class="num">${num}</span>
+                    <div>
+                        <span class="num">${num}</span>
+                        ${profileLine}
+                    </div>
                     <div class="meta">
                         <span class="badge-good">★ good</span>
                         <button class="btn-remove-saved" data-number="${num}">remove</button>
@@ -1570,19 +1871,7 @@
         document.querySelectorAll('.btn-remove-saved').forEach(function (btn) {
             btn.addEventListener('click', function (e) {
                 e.stopPropagation();
-                const number = this.getAttribute('data-number');
-                const index = savedNumbers.indexOf(number);
-                if (index > -1) {
-                    savedNumbers.splice(index, 1);
-                    saveToLocalStorage();
-                    renderSaved();
-                    document.querySelectorAll('.btn-save-good').forEach(function (b) {
-                        if (b.getAttribute('data-number') === number) {
-                            b.textContent = '☆ good';
-                            b.classList.remove('saved');
-                        }
-                    });
-                }
+                removeSavedEntry(this.getAttribute('data-number'));
             });
         });
 
@@ -1604,15 +1893,31 @@
     }
 
     // ============================================================
-    //  LÓGICA ORIGINAL — sin modificaciones
+    //  HELPERS DE GUARDADO CON PERFIL
     // ============================================================
+    function isNumberSaved(number) {
+        return savedNumbers.some(function (s) { return s.number === number; });
+    }
+
+    function autoSaveWithProfile(number, profile) {
+        if (isNumberSaved(number)) return;  // ya guardado, no duplicar
+        savedNumbers.push({ number: number, profile: profile });
+        saveToLocalStorage();
+        renderSaved();
+        // Actualizar botones "good" en la lista de generados
+        document.querySelectorAll('.btn-save-good[data-number="' + number + '"]').forEach(function (b) {
+            b.textContent = '★ saved';
+            b.classList.add('saved');
+        });
+    }
+
     function toggleSaved(number, btnElement) {
-        const index = savedNumbers.indexOf(number);
+        const index = savedNumbers.findIndex(function (s) { return s.number === number; });
         if (index > -1) {
             savedNumbers.splice(index, 1);
             if (btnElement) { btnElement.textContent = '☆ good'; btnElement.classList.remove('saved'); }
         } else {
-            savedNumbers.push(number);
+            savedNumbers.push({ number: number, profile: null });
             if (btnElement) { btnElement.textContent = '★ saved'; btnElement.classList.add('saved'); }
         }
         saveToLocalStorage();
@@ -1677,7 +1982,16 @@
 
     function exportSaved() {
         if (!savedNumbers.length) { alert('no saved numbers to export'); return; }
-        const text = savedNumbers.join('\n');
+        const text = savedNumbers.map(function (entry) {
+            const num = entry.number;
+            const p   = entry.profile;
+            if (!p) return num;
+            const parts = [num];
+            if (p.name)           parts.push(p.name);
+            if (p.age)            parts.push(p.age);
+            if (p.addressCurrent) parts.push(p.addressCurrent);
+            return parts.join('\t');
+        }).join('\n');
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(text)
                 .then(function () {
@@ -1702,6 +2016,17 @@
                 b.classList.remove('saved');
             });
         }
+    }
+
+    function removeSavedEntry(number) {
+        const index = savedNumbers.findIndex(function (s) { return s.number === number; });
+        if (index > -1) savedNumbers.splice(index, 1);
+        saveToLocalStorage();
+        renderSaved();
+        document.querySelectorAll('.btn-save-good[data-number="' + number + '"]').forEach(function (b) {
+            b.textContent = '☆ good';
+            b.classList.remove('saved');
+        });
     }
 
     function refreshNumbers() {
