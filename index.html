@@ -717,6 +717,189 @@
             color: #00ffc8;
         }
 
+        /* ----- SEARCH ALL / AUTO MODE ----- */
+        .searchall-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .btn-searchall {
+            flex: 1 1 auto;
+            background: rgba(0, 180, 255, 0.04);
+            border: 1px solid rgba(0, 180, 255, 0.08);
+            padding: 0.5rem 1.2rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #4dc9ff;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+        .btn-searchall:hover {
+            background: rgba(0, 180, 255, 0.07);
+            border-color: rgba(0, 180, 255, 0.18);
+            color: #7ad8ff;
+            transform: translateY(-1px);
+        }
+        .btn-searchall.running {
+            background: rgba(255, 0, 80, 0.04);
+            border-color: rgba(255, 0, 80, 0.12);
+            color: #ff6b8a;
+            animation: searchPulse 1s ease-in-out infinite;
+        }
+        .btn-searchall:active { transform: scale(0.96); }
+
+        .auto-toggle-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0, 255, 200, 0.02);
+            border: 1px solid rgba(0, 255, 200, 0.05);
+            border-radius: 4px;
+            padding: 0.35rem 0.8rem;
+            cursor: pointer;
+            user-select: none;
+            transition: border-color 0.2s;
+        }
+        .auto-toggle-wrap:hover { border-color: rgba(0, 255, 200, 0.12); }
+        .auto-toggle-wrap.active {
+            border-color: rgba(0, 255, 200, 0.2);
+            background: rgba(0, 255, 200, 0.04);
+        }
+
+        .auto-toggle-box {
+            width: 28px;
+            height: 14px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 255, 200, 0.1);
+            border-radius: 7px;
+            position: relative;
+            transition: background 0.2s;
+        }
+        .auto-toggle-box::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #3d6a5e;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .auto-toggle-wrap.active .auto-toggle-box {
+            background: rgba(0, 255, 200, 0.12);
+            border-color: rgba(0, 255, 200, 0.25);
+        }
+        .auto-toggle-wrap.active .auto-toggle-box::after {
+            transform: translateX(14px);
+            background: #00ffc8;
+        }
+        .auto-toggle-label {
+            font-size: 0.6rem;
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #4d7a6e;
+            transition: color 0.2s;
+        }
+        .auto-toggle-wrap.active .auto-toggle-label { color: #00ffc8; }
+
+        .searchall-progress {
+            font-size: 0.6rem;
+            color: #3d6a5e;
+            font-family: 'Share Tech Mono', monospace;
+            letter-spacing: 0.5px;
+            min-width: 80px;
+            text-align: right;
+        }
+        .searchall-progress strong { color: #4dc9ff; }
+
+        /* ----- BÚSQUEDA MANUAL ----- */
+        .manual-search-section {
+            margin-top: 1.2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 255, 200, 0.06);
+        }
+
+        .manual-search-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #3d6a5e;
+            font-family: 'Share Tech Mono', monospace;
+            margin-bottom: 0.5rem;
+        }
+
+        .manual-search-row {
+            display: flex;
+            gap: 0.6rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .manual-search-input {
+            flex: 1 1 200px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(0, 255, 200, 0.08);
+            border-radius: 4px;
+            padding: 0.45rem 0.9rem;
+            color: #00ffc8;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            letter-spacing: 0.5px;
+        }
+
+        .manual-search-input::placeholder {
+            color: #2d5a4e;
+        }
+
+        .manual-search-input:focus {
+            border-color: rgba(0, 255, 200, 0.25);
+            box-shadow: 0 0 15px rgba(0, 255, 200, 0.03);
+        }
+
+        .manual-search-btn {
+            background: rgba(0, 255, 200, 0.04);
+            border: 1px solid rgba(0, 255, 200, 0.08);
+            padding: 0.45rem 1.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #b0e0d0;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            white-space: nowrap;
+        }
+
+        .manual-search-btn:hover {
+            background: rgba(0, 255, 200, 0.07);
+            border-color: rgba(0, 255, 200, 0.15);
+            color: #00ffc8;
+            transform: translateY(-1px);
+        }
+
+        .manual-search-btn:active { transform: scale(0.96); }
+
+        .manual-search-btn.searching {
+            color: #4dc9ff;
+            border-color: rgba(0, 180, 255, 0.15);
+            animation: searchPulse 1s ease-in-out infinite;
+        }
+
         /* ----- RESPONSIVE ----- */
         @media (max-width: 820px) {
             .card { padding: 1.2rem 1.2rem 1.5rem; border-radius: 12px; }
@@ -962,157 +1145,9 @@
         }
         .ray-ext-banner.visible { display: block; }
         .ray-ext-banner strong { color: #ffd84d; }
-
-        /* ----- KEY GATE ----- */
-        #rayKeyGate {
-            position: fixed;
-            inset: 0;
-            background: #0a0e14;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            font-family: 'Share Tech Mono', monospace;
-        }
-
-        #rayKeyGate.hidden { display: none; }
-
-        .key-gate-box {
-            max-width: 460px;
-            width: 100%;
-            background: rgba(10, 14, 20, 0.98);
-            border: 1px solid rgba(0, 255, 200, 0.10);
-            border-radius: 12px;
-            padding: 2rem 2.2rem 2rem;
-            box-shadow:
-                0 30px 80px -10px rgba(0,0,0,0.95),
-                0 0 60px rgba(0,255,200,0.03),
-                inset 0 1px 0 rgba(0,255,200,0.06);
-        }
-
-        .key-gate-header {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            margin-bottom: 1.6rem;
-            padding-bottom: 0.8rem;
-            border-bottom: 1px solid rgba(0,255,200,0.06);
-        }
-
-        .key-gate-title {
-            font-size: 1.1rem;
-            color: #7ab8a8;
-        }
-
-        .key-gate-title strong { color: #00ffc8; font-size: 1.3rem; }
-
-        .key-gate-label {
-            font-size: 0.55rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: #3d6a5e;
-            margin-bottom: 0.5rem;
-        }
-
-        .key-gate-input {
-            width: 100%;
-            background: rgba(0,0,0,0.4);
-            border: 1px solid rgba(0,255,200,0.10);
-            border-radius: 4px;
-            padding: 0.6rem 1rem;
-            color: #00ffc8;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.95rem;
-            letter-spacing: 1px;
-            outline: none;
-            transition: border-color 0.2s;
-            margin-bottom: 1rem;
-        }
-
-        .key-gate-input:focus { border-color: rgba(0,255,200,0.35); }
-        .key-gate-input::placeholder { color: #2d5a4e; }
-
-        .key-gate-btn {
-            width: 100%;
-            background: rgba(0,255,200,0.04);
-            border: 1px solid rgba(0,255,200,0.10);
-            border-radius: 4px;
-            padding: 0.6rem;
-            color: #b0e0d0;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.18s;
-        }
-
-        .key-gate-btn:hover {
-            background: rgba(0,255,200,0.08);
-            border-color: rgba(0,255,200,0.20);
-            color: #00ffc8;
-        }
-
-        .key-gate-btn:active { transform: scale(0.97); }
-
-        .key-gate-error {
-            font-size: 0.6rem;
-            color: #ff6b8a;
-            margin-top: 0.7rem;
-            min-height: 1rem;
-            letter-spacing: 0.5px;
-        }
-
-        .key-gate-info {
-            margin-top: 1.4rem;
-            padding-top: 0.8rem;
-            border-top: 1px solid rgba(0,255,200,0.04);
-            font-size: 0.52rem;
-            color: #2d5a4e;
-            text-align: center;
-            letter-spacing: 0.5px;
-        }
-
-        .key-gate-expiry {
-            margin-top: 0.4rem;
-            font-size: 0.52rem;
-            color: #3d6a5e;
-            text-align: center;
-            display: none;
-        }
     </style>
 </head>
 <body>
-
-<!-- ============================================================
-     KEY GATE — pantalla de acceso con clave temporal (7 días)
-     ============================================================ -->
-<div id="rayKeyGate">
-    <div class="key-gate-box">
-        <div class="key-gate-header">
-            <span class="terminal-dot red"></span>
-            <span class="terminal-dot yellow"></span>
-            <span class="terminal-dot green"></span>
-            <span class="key-gate-title"><strong>ЯAY</strong> · acceso restringido</span>
-        </div>
-
-        <div class="key-gate-label">◆ clave de acceso</div>
-        <input
-            type="password"
-            id="keyGateInput"
-            class="key-gate-input"
-            placeholder="RAY7D-XXXX-XXXX"
-            autocomplete="off"
-            spellcheck="false"
-        />
-        <button class="key-gate-btn" id="keyGateBtn">⚡ activar sesión</button>
-        <div class="key-gate-error" id="keyGateError"></div>
-        <div class="key-gate-info">
-            ◈ duración según tu clave · contacta al admin para obtener acceso
-        </div>
-    </div>
-</div>
 
 <!-- Banner: extensión no detectada -->
 <div class="ray-ext-banner" id="rayExtBanner">
@@ -1204,6 +1239,18 @@
                     <span class="btn-icon">✕</span> clear
                 </button>
             </div>
+
+            <!-- SEARCH ALL + AUTO TOGGLE -->
+            <div class="searchall-row">
+                <button class="btn-searchall" id="searchAllBtn">
+                    <span>◈</span> search all
+                </button>
+                <div class="auto-toggle-wrap" id="autoToggle">
+                    <div class="auto-toggle-box"></div>
+                    <span class="auto-toggle-label">auto</span>
+                </div>
+                <span class="searchall-progress" id="searchAllProgress"></span>
+            </div>
         </div>
 
         <!-- COLUMNA DERECHA: GUARDADOS (BUENOS) -->
@@ -1223,7 +1270,10 @@
 
             <div class="action-row">
                 <button class="btn btn-success" id="exportSavedBtn">
-                    <span class="btn-icon">📤</span> export all
+                    <span class="btn-icon">📋</span> copy
+                </button>
+                <button class="btn btn-success" id="downloadSavedBtn">
+                    <span class="btn-icon">💾</span> download
                 </button>
                 <button class="btn btn-danger" id="clearSavedBtn">
                     <span class="btn-icon">✕</span> clear saved
@@ -1243,6 +1293,25 @@
             <span>nanpa · e.164</span>
         </div>
         <div class="footer-badge"><span>⚡</span> ЯAY · generador de números reales</div>
+    </div>
+
+    <!-- BÚSQUEDA MANUAL -->
+    <div class="manual-search-section">
+        <div class="manual-search-label">◆ BÚSQUEDA MANUAL · ingresa un número</div>
+        <div class="manual-search-row">
+            <input
+                type="text"
+                class="manual-search-input"
+                id="manualSearchInput"
+                placeholder="ej. 2125551234"
+                maxlength="15"
+                autocomplete="off"
+                inputmode="tel"
+            />
+            <button class="manual-search-btn" id="manualSearchBtn">
+                <span>⚡</span> buscar
+            </button>
+        </div>
     </div>
 </div>
 
@@ -1269,136 +1338,6 @@
 
 
 <script>
-// ============================================================
-//  KEY GATE — Sistema de claves temporales (7 días)
-// ============================================================
-// INSTRUCCIONES PARA EL ADMIN:
-//   1. Para generar una clave nueva, copia el texto que quieras usar como clave
-//      y calcula su SHA-256. Herramienta online: https://emn178.github.io/online-tools/sha256.html
-//   2. Pega el hash resultante en el array VALID_KEY_HASHES de abajo.
-//   3. Para revocar una clave, elimina su hash del array.
-//   4. Las claves expiran 7 días después de la PRIMERA vez que se usan (por usuario).
-//
-//  CLAVES DE EJEMPLO INCLUIDAS:
-//    RAY7D-ALFA-0001  →  hash en posición 0
-//    RAY7D-BETA-0002  →  hash en posición 1
-//    RAY7D-GAMA-0003  →  hash en posición 2
-// ============================================================
-(function () {
-    "use strict";
-
-    // Configura días y hashes por clave.
-    // hash  → SHA-256 de la clave (usa https://emn178.github.io/online-tools/sha256.html)
-    // days  → cuántos días dura la sesión desde que se activa por primera vez
-    // label → solo es un comentario tuyo; no se muestra al usuario
-    const VALID_KEYS = [
-        { hash: "09a3ec0674e7b3b1cb8a7cda9b82b91993cd488cf334967af09c87d6eb163da3", days: 7,  label: "RAY7D-ALFA-0001" },
-        { hash: "ab6de400597c13d44021fe5da643489590572ed57f2818e2f094a42c2e09a61a", days: 30, label: "RAY7D-BETA-0002" },
-        { hash: "db9171fcf4925cb5e403426d61b93886aa6045b5bf78b3855b6fcdbdb26dfbdf", days: 1,  label: "RAY7D-GAMA-0003" },
-        // { hash: "...", days: 14, label: "MI-CLAVE-NUEVA" },
-    ];
-
-    const SESSION_KEY = "ray_key_session";
-
-    const gateEl   = document.getElementById("rayKeyGate");
-    const inputEl  = document.getElementById("keyGateInput");
-    const btnEl    = document.getElementById("keyGateBtn");
-    const errorEl  = document.getElementById("keyGateError");
-
-    // Calcular SHA-256 del texto usando Web Crypto API
-    async function sha256(text) {
-        const buf = await crypto.subtle.digest(
-            "SHA-256",
-            new TextEncoder().encode(text.trim())
-        );
-        return Array.from(new Uint8Array(buf))
-            .map(function (b) { return b.toString(16).padStart(2, "0"); })
-            .join("");
-    }
-
-    // Buscar una clave válida por hash
-    function findKey(hash) {
-        return VALID_KEYS.find(function (k) { return k.hash === hash; }) || null;
-    }
-
-    // Verificar sesión guardada en localStorage
-    function checkStoredSession() {
-        try {
-            const raw = localStorage.getItem(SESSION_KEY);
-            if (!raw) return false;
-            const session = JSON.parse(raw);
-            if (!session || !session.hash || !session.expiresAt) return false;
-            if (Date.now() > session.expiresAt) {
-                localStorage.removeItem(SESSION_KEY);
-                return false;
-            }
-            if (!findKey(session.hash)) {
-                localStorage.removeItem(SESSION_KEY);
-                return false;
-            }
-            return true;
-        } catch (_) { return false; }
-    }
-
-    // Guardar sesión con duración configurada por la clave
-    function storeSession(hash, days) {
-        const ms = days * 24 * 60 * 60 * 1000;
-        localStorage.setItem(SESSION_KEY, JSON.stringify({
-            hash: hash,
-            expiresAt: Date.now() + ms,
-        }));
-    }
-
-    // Desbloquear la página
-    function unlock() {
-        gateEl.classList.add("hidden");
-    }
-
-    // Intentar activar la clave ingresada
-    async function tryKey() {
-        const raw = inputEl.value;
-        if (!raw.trim()) {
-            errorEl.textContent = "✕ ingresa tu clave de acceso";
-            return;
-        }
-        btnEl.textContent = "◌ verificando...";
-        btnEl.disabled = true;
-        errorEl.textContent = "";
-
-        try {
-            const hash = await sha256(raw);
-            const keyEntry = findKey(hash);
-            if (keyEntry) {
-                storeSession(hash, keyEntry.days);
-                unlock();
-            } else {
-                errorEl.textContent = "✕ clave inválida o revocada";
-                inputEl.value = "";
-                inputEl.focus();
-            }
-        } catch (e) {
-            errorEl.textContent = "✕ error al verificar — intenta de nuevo";
-        }
-
-        btnEl.textContent = "⚡ activar sesión";
-        btnEl.disabled = false;
-    }
-
-    // Al cargar: verificar si ya hay sesión activa
-    if (checkStoredSession()) {
-        unlock();
-    }
-
-    // Eventos
-    btnEl.addEventListener("click", tryKey);
-    inputEl.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") tryKey();
-    });
-})();
-
-// ============================================================
-//  APLICACIÓN PRINCIPAL
-// ============================================================
 (function () {
     "use strict";
 
@@ -1577,9 +1516,16 @@
         // Guardar en caché solo si hay resultados reales
         if (data.status === 'ok') {
             searchCache[phone] = data;
-            // Auto-guardar con perfil si encontró resultados
+            // Auto-guardar solo si el número buscado aparece en los phones del perfil
             if (data.profiles && data.profiles.length > 0) {
-                autoSaveWithProfile(phone, data.profiles[0]);
+                var firstProfile = data.profiles[0];
+                var normalizedSearch = String(phone).replace(/\D/g, '');
+                var profilePhones = (firstProfile.phones || []).map(function(p) {
+                    return String(p).replace(/\D/g, '');
+                });
+                if (profilePhones.length > 0 && profilePhones[0] === normalizedSearch) {
+                    autoSaveWithProfile(phone, firstProfile);
+                }
             }
         }
 
@@ -1901,7 +1847,7 @@
 
     function autoSaveWithProfile(number, profile) {
         if (isNumberSaved(number)) return;  // ya guardado, no duplicar
-        savedNumbers.push({ number: number, profile: profile });
+        savedNumbers.unshift({ number: number, profile: profile });
         saveToLocalStorage();
         renderSaved();
         // Actualizar botones "good" en la lista de generados
@@ -1980,9 +1926,8 @@
         }
     }
 
-    function exportSaved() {
-        if (!savedNumbers.length) { alert('no saved numbers to export'); return; }
-        const text = savedNumbers.map(function (entry) {
+    function buildExportText() {
+        return savedNumbers.map(function (entry) {
             const num = entry.number;
             const p   = entry.profile;
             if (!p) return num;
@@ -1992,17 +1937,40 @@
             if (p.addressCurrent) parts.push(p.addressCurrent);
             return parts.join('\t');
         }).join('\n');
+    }
+
+    function exportSaved() {
+        if (!savedNumbers.length) { alert('no saved numbers to export'); return; }
+        const text = buildExportText();
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(text)
                 .then(function () {
                     const original = exportSavedBtn.innerHTML;
-                    exportSavedBtn.innerHTML = '✓ exported';
+                    exportSavedBtn.innerHTML = '✓ copied';
                     setTimeout(function () { exportSavedBtn.innerHTML = original; }, 1800);
                 })
                 .catch(function () { fallbackCopy(text, exportSavedBtn); });
         } else {
             fallbackCopy(text, exportSavedBtn);
         }
+    }
+
+    function downloadSaved() {
+        if (!savedNumbers.length) { alert('no saved numbers to download'); return; }
+        const text = buildExportText();
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        const ts   = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+        a.href     = url;
+        a.download = 'RAY-saved-' + ts + '.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        const original = downloadSavedBtn.innerHTML;
+        downloadSavedBtn.innerHTML = '✓ downloaded';
+        setTimeout(function () { downloadSavedBtn.innerHTML = original; }, 1800);
     }
 
     function clearSaved() {
@@ -2035,6 +2003,10 @@
         quantityInput.value = clamped;
         currentNumbers = generateNumbers(clamped, currentOperator);
         renderNumbers(currentNumbers);
+        if (autoModeOn) {
+            // Pequeña pausa para que el render termine antes de empezar
+            setTimeout(startSearchAll, 300);
+        }
     }
 
     function clearNumbers() {
@@ -2054,16 +2026,156 @@
     // ============================================================
     //  EVENTOS — idénticos a los originales
     // ============================================================
+    var downloadSavedBtn = document.getElementById('downloadSavedBtn');
     generateBtn.addEventListener('click', refreshNumbers);
     copyAllBtn.addEventListener('click', copyAllNumbers);
     clearBtn.addEventListener('click', clearNumbers);
     clearSavedBtn.addEventListener('click', clearSaved);
     exportSavedBtn.addEventListener('click', exportSaved);
+    downloadSavedBtn.addEventListener('click', downloadSaved);
 
     operatorBtns.forEach(function (btn) {
         btn.addEventListener('click', function () {
             setActiveOperator(this.getAttribute('data-operator'));
         });
+    });
+
+    // ============================================================
+    //  SEARCH ALL + AUTO MODE
+    // ============================================================
+    var searchAllBtn      = document.getElementById('searchAllBtn');
+    var autoToggleEl      = document.getElementById('autoToggle');
+    var searchAllProgress = document.getElementById('searchAllProgress');
+
+    var autoModeOn    = false;
+    var searchAllRunning = false;
+    var searchAllStop    = false;
+    var POST_RESULT_DELAY = 700;  // ms de espera DESPUÉS de recibir respuesta
+    var FALLBACK_TIMEOUT  = 20000; // ms máximo si la extensión no responde
+
+    autoToggleEl.addEventListener('click', function () {
+        autoModeOn = !autoModeOn;
+        autoToggleEl.classList.toggle('active', autoModeOn);
+    });
+
+    searchAllBtn.addEventListener('click', function () {
+        if (searchAllRunning) {
+            // DETENER
+            searchAllStop = true;
+            return;
+        }
+        startSearchAll();
+    });
+
+    function startSearchAll() {
+        if (!currentNumbers.length) return;
+        if (!extensionReady) {
+            openModal('—');
+            rayModalBody.innerHTML = '<div class="ray-status error">Extensión no detectada. Instala la extensión ЯAY para buscar.</div>';
+            return;
+        }
+
+        var queue = currentNumbers.filter(function (n) { return !searchCache[n]; });
+        if (!queue.length) {
+            searchAllProgress.innerHTML = '<strong>✓ all done</strong>';
+            return;
+        }
+
+        searchAllRunning = true;
+        searchAllStop    = false;
+        searchAllBtn.classList.add('running');
+        searchAllBtn.innerHTML = '<span>✕</span> stop';
+
+        var idx = 0;
+        var total = queue.length;
+
+        function next() {
+            if (searchAllStop || idx >= total) {
+                searchAllRunning = false;
+                searchAllStop    = false;
+                searchAllBtn.classList.remove('running');
+                searchAllBtn.innerHTML = '<span>◈</span> search all';
+                searchAllProgress.innerHTML = idx >= total
+                    ? '<strong>✓ done</strong>'
+                    : '<span style="color:#ff6b8a">stopped</span>';
+                return;
+            }
+
+            var phone = queue[idx];
+            idx++;
+            searchAllProgress.innerHTML = '<strong>' + idx + '</strong>/' + total;
+
+            // Enviar búsqueda
+            window.postMessage({ type: 'RAY_SEARCH', phone: phone }, '*');
+
+            // Esperar respuesta primero; solo saltar con el fallback si no llega nada
+            var proceeded = false;
+
+            var fallback = setTimeout(function () {
+                if (!proceeded) {
+                    proceeded = true;
+                    next();
+                }
+            }, FALLBACK_TIMEOUT);
+
+            window.addEventListener('message', function onMsg(event) {
+                if (!event.data) return;
+                if (event.data.type === 'RAY_RESULTS' &&
+                    String(event.data.phone).replace(/\D/g,'').slice(-10) ===
+                    String(phone).replace(/\D/g,'').slice(-10)) {
+                    window.removeEventListener('message', onMsg);
+                    if (!proceeded) {
+                        proceeded = true;
+                        clearTimeout(fallback);
+                        // Esperar POST_RESULT_DELAY después de la respuesta
+                        setTimeout(next, POST_RESULT_DELAY);
+                    }
+                }
+            });
+        }
+
+        next();
+    }
+
+    // ============================================================
+    //  BÚSQUEDA MANUAL
+    // ============================================================
+    var manualSearchInput = document.getElementById('manualSearchInput');
+    var manualSearchBtn   = document.getElementById('manualSearchBtn');
+
+    function runManualSearch() {
+        var raw = manualSearchInput.value.replace(/\D/g, '');
+        if (raw.length < 10) {
+            manualSearchInput.style.borderColor = 'rgba(255,0,80,0.3)';
+            setTimeout(function () { manualSearchInput.style.borderColor = ''; }, 1200);
+            return;
+        }
+        // Tomar los últimos 10 dígitos (quita el 1 de país si lo pusieron)
+        var phone = raw.slice(-10);
+        manualSearchBtn.classList.add('searching');
+        manualSearchBtn.textContent = '◌ buscando';
+        searchPhone(phone, null);
+        // Restaurar botón cuando llegue la respuesta (máx 8 s)
+        var restore = setTimeout(function () {
+            manualSearchBtn.classList.remove('searching');
+            manualSearchBtn.innerHTML = '<span>⚡</span> buscar';
+        }, 8000);
+        var origHandle = handleSearchResults;
+        // Escuchar una sola vez para restaurar inmediatamente al llegar resultado
+        window.addEventListener('message', function onResult(event) {
+            if (!event.data) return;
+            if (event.data.type === 'RAY_RESULTS' && String(event.data.phone).replace(/\D/g,'').slice(-10) === phone) {
+                clearTimeout(restore);
+                manualSearchBtn.classList.remove('searching');
+                manualSearchBtn.innerHTML = '<span>⚡</span> buscar';
+                window.removeEventListener('message', onResult);
+            }
+        });
+    }
+
+    manualSearchBtn.addEventListener('click', runManualSearch);
+    manualSearchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') runManualSearch();
     });
 
     const quantityInput = document.getElementById('quantityInput');
